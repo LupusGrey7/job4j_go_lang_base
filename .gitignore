@@ -18,7 +18,8 @@ coverage.*
 profile.cov
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
+go/pkg/
 
 # Go workspace file
 go.work
@@ -30,3 +31,9 @@ go.work.sum
 # Editor/IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+*.iml
+
+# Local development files
+tmp/
