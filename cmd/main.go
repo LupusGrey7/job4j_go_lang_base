@@ -10,5 +10,6 @@ func main() {
 	first := 100
 	second := 10
 	res := base.Add(first, second)
-	fmt.Println(fmt.Sprintf("%d + %d = %d", first, second, res))
+
+	fmt.Printf("%d + %d = %d\n", first, second, res)
 }
