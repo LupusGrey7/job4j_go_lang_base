@@ -37,3 +37,4 @@ go.work.sum
 
 # Local development files
 tmp/
+DEVELOPMENT.md
