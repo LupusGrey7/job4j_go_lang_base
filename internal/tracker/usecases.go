@@ -1,9 +1,5 @@
 package tracker
 
-import (
-	"github.com/google/uuid"
-)
-
 type Usecase interface {
 	Done(in Input, out Output, tracker *Tracker)
 }
@@ -13,8 +9,12 @@ type AddUsecase struct{}
 func (u AddUsecase) Done(in Input, out Output, tracker *Tracker) {
 	out.Out("enter name:")
 	name := in.Get()
-	id := uuid.New().String()
-	tracker.AddItem(Item{Name: name, ID: id})
+
+	item, err := tracker.AddItem(Item{Name: name})
+	if err != nil {
+		out.Out(err.Error())
+	}
+	out.Out(item.ToString())
 }
 
 type GetUsecase struct{}

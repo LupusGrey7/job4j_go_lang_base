@@ -14,36 +14,93 @@ func Test_Tracker(t *testing.T) {
 
 		tracker := NewTracker()
 		item := Item{
-			ID:   "1",
+			ID:   "",
 			Name: "First Item",
 		}
-		tracker.AddItem(item)
+		itemRsl, err := tracker.AddItem(item)
 
 		res := tracker.GetItems()
 		res[0].Name = "Second Item"
 
-		assert.Equal(t, []Item{item}, tracker.GetItems())
+		assert.Equal(t, []Item{itemRsl}, tracker.GetItems())
+		assert.Equal(t, err, nil)
 	})
 
 	t.Run("when add Item`s Than get size []Items", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
-		item1 := Item{
-			ID:   "1",
+		itemOne := Item{
+			ID:   "",
 			Name: "First Item",
 		}
-		tracker.AddItem(item1)
-		item2 := Item{
-			ID:   "2",
+		_, errOne := tracker.AddItem(itemOne)
+		itemTwo := Item{
+			ID:   "",
 			Name: "Second Item",
 		}
-		tracker.AddItem(item2)
+		_, errTwo := tracker.AddItem(itemTwo)
 
 		rsl := tracker.GetItems()
 		rsl[0].Name = "Second Item"
 
 		assert.Equal(t, 2, len(tracker.GetItems()))
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
+
+	})
+
+	t.Run("add Item - true", func(t *testing.T) {
+		t.Parallel()
+
+		tracker := NewTracker()
+		itemOne := Item{
+			ID:   "",
+			Name: "First Item",
+		}
+		itemTwo := Item{
+			ID:   "",
+			Name: "Second Item",
+		}
+
+		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
+
+		assert.Equal(t, 2, len(tracker.GetItems()))
+		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		assert.Equal(t, errTwo, nil)
+	})
+
+	t.Run("add exist Item - false", func(t *testing.T) {
+		t.Parallel()
+
+		tracker := NewTracker()
+		itemOne := Item{
+			ID:   "",
+			Name: "First Item",
+		}
+		itemTwo := Item{
+			ID:   "",
+			Name: "Second Item",
+		}
+
+		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
+		itemThree := Item{
+			ID:   itemTwoRsl.ID,
+			Name: "Third Item",
+		}
+
+		_, errThree := tracker.AddItem(itemThree)
+
+		assert.Equal(t, 2, len(tracker.GetItems()))
+		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		assert.Equal(t, errTwo, nil)
+		assert.Equal(t, errThree, ErrIllegalArgument)
 	})
 
 	t.Run("when add Item Than use ToString", func(t *testing.T) {
@@ -51,15 +108,15 @@ func Test_Tracker(t *testing.T) {
 
 		tracker := NewTracker()
 		item := Item{
-			ID:   "1",
+			ID:   "",
 			Name: "First Item",
 		}
-		tracker.AddItem(item)
+		itemRsl, _ := tracker.AddItem(item)
 
 		res := tracker.GetItems()
 		rsl := res[0].ToString()
-
-		exp := "id: 1, name: First Item"
+		idRsl := itemRsl.ID
+		exp := "id: " + idRsl + ", name: First Item"
 
 		assert.Equal(t, exp, rsl)
 	})
@@ -68,26 +125,30 @@ func Test_Tracker(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
-		item := Item{
-			ID:   uuid.NewString(),
+		itemOne := Item{
+			ID:   "",
 			Name: "First Item",
 		}
 		itemTwo := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "Boris Johnson",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
+		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
 		_, flag := tracker.FindByPrefixName("First Item")
 
 		assert.Equal(t, flag, true)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
+		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
+		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
 	})
 
 	t.Run("when find Item BY prefix Than true", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
-		item := Item{
+		itemOne := Item{
 			ID:   uuid.NewString(),
 			Name: "First Item",
 		}
@@ -95,102 +156,137 @@ func Test_Tracker(t *testing.T) {
 			ID:   uuid.NewString(),
 			Name: "Boris Johnson",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
+		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
 		_, flag := tracker.FindByPrefixName("Boris Johnson")
 
 		assert.Equal(t, flag, true)
+		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
+		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
 	})
 
 	t.Run("when find Item BY prefix Than false", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
-		item := Item{
-			ID:   uuid.NewString(),
+		itemOne := Item{
+			ID:   "",
 			Name: "First Item",
 		}
 		itemTwo := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "Boris Johnson",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
+		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
 		_, flag := tracker.FindByPrefixName("Bo Johnson")
 
 		assert.Equal(t, flag, false)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
+
+		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
+		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+
 	})
 
-	t.Run("when update Item Than true", func(t *testing.T) {
+	t.Run("error update - not found", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
 		item := Item{
-			ID:   uuid.NewString(),
+			ID:   "1",
+			Name: "First Item",
+		}
+
+		err := tracker.UpdateItem(item)
+		assert.ErrorIs(t, err, ErrNotFound)
+	})
+
+	t.Run("update Item - true", func(t *testing.T) {
+		t.Parallel()
+
+		tracker := NewTracker()
+		item := Item{
+			ID:   "",
 			Name: "First Item",
 		}
 		itemTwo := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "John Johnson",
 		}
+		itemOneRsl, errOne := tracker.AddItem(item)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
 
 		itemUpdate := Item{
-			ID:   itemTwo.ID,
+			ID:   itemTwoRsl.ID,
 			Name: "Donald Trump",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
-		rsl, flag := tracker.UpdateItem(itemUpdate)
 
-		assert.Equal(t, flag, true)
-		assert.Equal(t, rsl.Name, "Donald Trump")
+		errRsl := tracker.UpdateItem(itemUpdate)
+		rsl := tracker.GetItems()
+
+		assert.Equal(t, nil, errOne)
+		assert.Equal(t, nil, errTwo)
+		assert.Equal(t, item.Name, itemOneRsl.Name)
+		assert.Equal(t, errRsl, nil)
+		assert.Equal(t, rsl[1].Name, "Donald Trump")
 	})
 
-	t.Run("when update Item Than false", func(t *testing.T) {
+	t.Run("update Item - false", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
-		item := Item{
-			ID:   uuid.NewString(),
+		itemOne := Item{
+			ID:   "",
 			Name: "First Item",
 		}
 		itemTwo := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "John Johnson",
 		}
 
+		_, errOne := tracker.AddItem(itemOne)
+		_, errTwo := tracker.AddItem(itemTwo)
+
 		itemUpdate := Item{
-			ID:   uuid.NewString(),
+			ID:   uuid.New().String(),
 			Name: "Martin Scorsese",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
-		rsl, flag := tracker.UpdateItem(itemUpdate)
+		errRsl := tracker.UpdateItem(itemUpdate)
+		rsl := tracker.GetItems()
 
-		assert.Equal(t, flag, false)
-		assert.Equal(t, rsl.Name, "Martin Scorsese")
+		assert.Equal(t, errRsl, ErrNotFound)
+		assert.Equal(t, rsl[1].Name, "John Johnson")
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
+
 	})
 
-	t.Run("when delete Item BY ID Than true", func(t *testing.T) {
+	t.Run("delete Item BY ID - true", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
 		item := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "Alice Marcuse",
 		}
 		itemTwo := Item{
-			ID:   uuid.NewString(),
+			ID:   "",
 			Name: "Boris Johnson",
 		}
-		tracker.AddItem(item)
-		tracker.AddItem(itemTwo)
-		tracker.DeleteItem(itemTwo.ID)
+		itemOneRsl, errOne := tracker.AddItem(item)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
+		err := tracker.DeleteItem(itemTwoRsl.ID)
 		rslItems := tracker.GetItems()
 
+		assert.Equal(t, err, nil)
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
 		assert.Equal(t, 1, len(rslItems))
 		assert.Equal(t, "Alice Marcuse", rslItems[0].Name)
-		assert.Equal(t, item.ID, rslItems[0].ID)
-
+		assert.Equal(t, itemOneRsl.ID, rslItems[0].ID)
 	})
 }
