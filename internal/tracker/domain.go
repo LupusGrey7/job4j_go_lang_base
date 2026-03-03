@@ -2,6 +2,7 @@ package tracker
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"unicode"
 )
 
@@ -22,24 +23,38 @@ func NewTracker() *Tracker {
 	return &Tracker{}
 }
 
-func (t *Tracker) UpdateItem(item Item) (Item, bool) {
-	itemRsl := item //make copy Item
-	flag := false
-
-	for _, itm := range t.items {
-		if item.ID == itm.ID {
-			itm.Name = item.Name
-			itemRsl = itm
-			flag = true
-			return itemRsl, flag
-		}
+func (t *Tracker) UpdateItem(item Item) error {
+	index, ok := t.indexOf(item.ID)
+	if !ok {
+		return ErrNotFound
 	}
 
-	return itemRsl, flag
+	t.items[index] = item
+
+	return nil
 }
 
-func (t *Tracker) AddItem(item Item) {
+func (t *Tracker) indexOf(id string) (int, bool) {
+	for i, item := range t.items {
+		if item.ID == id {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func (t *Tracker) AddItem(item Item) (Item, error) {
+	var itemRsl Item //make copy Item
+	_, foundFlag := t.indexOf(item.ID)
+	if foundFlag {
+		return Item{}, ErrIllegalArgument
+	}
+
+	item.ID = uuid.New().String()
 	t.items = append(t.items, item)
+	itemRsl = item
+
+	return itemRsl, nil
 }
 
 // GetItems - important! return COPY []Items using func copy(dest, resource)
@@ -73,23 +88,21 @@ func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
 	return itemRsl, flag
 }
 
-func (t *Tracker) DeleteItem(id string) {
-	if len(t.items) == 0 {
-		return
+func (t *Tracker) DeleteItem(id string) error {
+
+	i, foundFlag := t.indexOf(id)
+	if !foundFlag {
+		return ErrIllegalArgument
 	}
-	for i, item := range t.items {
-		if item.ID == id {
-			t.items[i] = Item{}
-			// Удаляем элемент с индексом i
-			t.items = append(t.items[:i], t.items[i+1:]...) // Удалить, но сохранить порядок
-		}
-	}
+
+	t.items[i] = Item{}                             // Удаляем элемент с индексом i
+	t.items = append(t.items[:i], t.items[i+1:]...) // Удалить, но сохранить порядок
+
+	return nil
 }
 
 /*
-*
-compareByPrefix
-сравнение имени по префику(первые символы в имени)
+compareByPrefix - private func, сравнение имени по префику(первые символы в имени)
 */
 func (t *Tracker) compareByPrefix(name string, item Item) (Item, bool) {
 	flag := false
@@ -100,7 +113,7 @@ func (t *Tracker) compareByPrefix(name string, item Item) (Item, bool) {
 	// Конвертируем строку в слайс рун (символов)
 	runesItemName := []rune(item.Name)
 
-	for _, r := range name { // ✅ ПРЯМО по string!
+	for _, r := range name { // ПРЯМО по string!
 		fmt.Println(string(r)) // Выводит каждый символ отдельно
 
 		if len(runesItemName) == 0 || unicode.IsSpace(r) {
