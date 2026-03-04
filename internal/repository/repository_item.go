@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-
 	"job4j.ru/go-lang-base/internal/tracker"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,16 +16,15 @@ func NewRepoPg(pool *pgxpool.Pool) *RepoPg {
 	return &RepoPg{pool: pool}
 }
 
-func (r *RepoPg) Create(ctx context.Context, it tracker.Item) error {
-	_, err := r.pool.Exec(
+func (r *RepoPg) Get(ctx context.Context, id string) (tracker.Item, error) {
+	var it tracker.Item
+	err := r.pool.QueryRow(
 		ctx,
-		`insert into items(id, name) values($1, $2)`,
-		it.ID, it.Name,
-	)
-	if err != nil {
-		return fmt.Errorf("r.pool.Exec: %w", err)
-	}
-	return nil
+		`select id, name from items where id = $1`,
+		id,
+	).Scan(&it.ID, &it.Name)
+
+	return it, err
 }
 
 func (r *RepoPg) List(ctx context.Context) ([]tracker.Item, error) {
@@ -52,13 +50,48 @@ func (r *RepoPg) List(ctx context.Context) ([]tracker.Item, error) {
 	return items, nil
 }
 
-func (r *RepoPg) Get(ctx context.Context, id string) (tracker.Item, error) {
-	var it tracker.Item
-	err := r.pool.QueryRow(
+func (r *RepoPg) Create(ctx context.Context, it tracker.Item) error {
+	_, err := r.pool.Exec(
 		ctx,
-		`select id, name from items where id = $1`,
-		id,
-	).Scan(&it.ID, &it.Name)
+		`insert into items(id, name) values($1, $2)`,
+		it.ID, it.Name,
+	)
+	if err != nil {
+		return fmt.Errorf("r.pool.Exec: %w", err)
+	}
 
-	return it, err
+	return nil
+}
+
+func (r *RepoPg) Update(ctx context.Context, it tracker.Item) (tracker.Item, error) {
+	fmt.Println(it)
+	query := `update items set name = $1 where id = $2`
+	_, err := r.pool.Exec(ctx, query, it.Name, it.ID)
+	if err != nil {
+		return tracker.Item{}, fmt.Errorf("r.pool.Exec: %w", err)
+	}
+
+	item, err := r.Get(ctx, it.ID)
+	return item, err
+}
+func (r *RepoPg) Delete(ctx context.Context, id string) error {
+	query := `delete from items where id = $1`
+	_, err := r.pool.Exec(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("r.pool.Exec: %w", err)
+	}
+
+	return nil
+}
+func (r *RepoPg) FindByName(ctx context.Context, id string) (tracker.Item, error) {
+	var it tracker.Item
+
+	query := `select id, name from items where name LIKE $1`
+	row := r.pool.QueryRow(ctx, query, id)
+	err := row.Scan(&it.ID, &it.Name)
+	if err != nil {
+		return tracker.Item{}, err
+	}
+
+	return it, nil
 }
