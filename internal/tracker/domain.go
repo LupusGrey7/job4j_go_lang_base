@@ -23,38 +23,38 @@ func NewTracker() *Tracker {
 	return &Tracker{}
 }
 
-func (t *Tracker) UpdateItem(item Item) error {
-	index, ok := t.indexOf(item.ID)
-	if !ok {
-		return ErrNotFound
+func (t *Tracker) UpdateItem(item Item) bool {
+	idx := t.indexOf(item.ID)
+	if idx == -1 {
+		return false
 	}
 
-	t.items[index] = item
-
-	return nil
+	t.items[idx] = item
+	return true
 }
 
-func (t *Tracker) indexOf(id string) (int, bool) {
+func (t *Tracker) indexOf(id string) int {
 	for i, item := range t.items {
 		if item.ID == id {
-			return i, true
+			return i
 		}
 	}
-	return -1, false
+	return -1
 }
 
 func (t *Tracker) AddItem(item Item) (Item, error) {
-	var itemRsl Item //make copy Item
-	_, foundFlag := t.indexOf(item.ID)
-	if foundFlag {
+	var itemResult Item
+
+	idx := t.indexOf(item.ID)
+	if idx != -1 {
 		return Item{}, ErrIllegalArgument
 	}
 
 	item.ID = uuid.New().String()
 	t.items = append(t.items, item)
-	itemRsl = item
+	itemResult = item
 
-	return itemRsl, nil
+	return itemResult, nil
 }
 
 // GetItems - important! return COPY []Items using func copy(dest, resource)
@@ -90,13 +90,13 @@ func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
 
 func (t *Tracker) DeleteItem(id string) error {
 
-	i, foundFlag := t.indexOf(id)
-	if !foundFlag {
+	idx := t.indexOf(id)
+	if idx == -1 {
 		return ErrIllegalArgument
 	}
 
-	t.items[i] = Item{}                             // Удаляем элемент с индексом i
-	t.items = append(t.items[:i], t.items[i+1:]...) // Удалить, но сохранить порядок
+	t.items[idx] = Item{}                               // Удаляем элемент с индексом i
+	t.items = append(t.items[:idx], t.items[idx+1:]...) // Удалить, но сохранить порядок
 
 	return nil
 }

@@ -147,7 +147,7 @@ func Test_Tracker(t *testing.T) {
 
 	})
 
-	t.Run("When_try_to_update_non-existent_item_Then_get_errNotFound", func(t *testing.T) {
+	t.Run("When_try_to_update_non-existent_item_Then_get_false", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
@@ -167,16 +167,16 @@ func Test_Tracker(t *testing.T) {
 			ID:   uuid.New().String(),
 			Name: "Martin Scorsese",
 		}
-		err := tracker.UpdateItem(itemUpdate)
+		boolResult := tracker.UpdateItem(itemUpdate)
 		sliceItems := tracker.GetItems()
 
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, errTwo, nil)
-		assert.Equal(t, err, ErrNotFound)
+		assert.Equal(t, boolResult, false)
 		assert.Equal(t, sliceItems[1].Name, "John Johnson")
 	})
 
-	t.Run("When_try_to_update_existent_item_Then_get_success", func(t *testing.T) {
+	t.Run("When_try_to_update_existent_item_Then_get_true", func(t *testing.T) {
 		t.Parallel()
 
 		tracker := NewTracker()
@@ -196,12 +196,12 @@ func Test_Tracker(t *testing.T) {
 			Name: "Donald Trump",
 		}
 
-		err := tracker.UpdateItem(itemUpdate)
+		boolResult := tracker.UpdateItem(itemUpdate)
 		sliceItems := tracker.GetItems()
 
 		assert.Equal(t, nil, errAddOne)
 		assert.Equal(t, nil, errAddTwo)
-		assert.Equal(t, err, nil)
+		assert.Equal(t, boolResult, true)
 		assert.Equal(t, item.Name, itemOneRsl.Name)
 		assert.Equal(t, sliceItems[1].Name, "Donald Trump")
 	})
