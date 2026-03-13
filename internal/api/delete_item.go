@@ -12,7 +12,7 @@ type DeleteItemRequest struct {
 func (s *Server) DeleteItem(c *fiber.Ctx) error {
 
 	//парсим url запроса на предмет параметров ("id"/ "name") сразу в переменную
-	requestParam := c.Query("id", "")
+	requestParam := c.Query("id")
 	if requestParam == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "id is required")
 	}

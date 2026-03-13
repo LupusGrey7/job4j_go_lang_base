@@ -74,6 +74,28 @@ func (r *RepoPg) Update(ctx context.Context, it tracker.Item) (tracker.Item, err
 	item, err := r.Get(ctx, it.ID)
 	return item, err
 }
+
+func (r *RepoPg) FindByName(ctx context.Context, id string) ([]tracker.Item, error) {
+	var items []tracker.Item
+	query := `select id, name from items where name LIKE $1`
+
+	rows, err := r.pool.Query(ctx, query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item tracker.Item
+		if err := rows.Scan(&item.ID, &item.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
 func (r *RepoPg) Delete(ctx context.Context, id string) error {
 	query := `delete from items where id = $1`
 	_, err := r.pool.Exec(ctx, query, id)
@@ -82,16 +104,4 @@ func (r *RepoPg) Delete(ctx context.Context, id string) error {
 	}
 
 	return nil
-}
-func (r *RepoPg) FindByName(ctx context.Context, id string) (tracker.Item, error) {
-	var it tracker.Item
-
-	query := `select id, name from items where name LIKE $1`
-	row := r.pool.QueryRow(ctx, query, id)
-	err := row.Scan(&it.ID, &it.Name)
-	if err != nil {
-		return tracker.Item{}, err
-	}
-
-	return it, nil
 }

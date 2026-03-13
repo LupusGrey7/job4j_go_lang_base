@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"job4j.ru/go-lang-base/internal/api"
-	"job4j.ru/go-lang-base/internal/base"
 	"job4j.ru/go-lang-base/internal/config"
 	"job4j.ru/go-lang-base/internal/db"
 	"job4j.ru/go-lang-base/internal/repository"
@@ -17,13 +15,6 @@ const (
 )
 
 func main() {
-	fmt.Println("Hello World")
-	first := 100
-	second := 10
-	res := base.Add(first, second)
-
-	fmt.Printf("%d + %d = %d\n", first, second, res)
-
 	// ---Tracker UI---
 	//DB Config
 	ctx := context.Background()
