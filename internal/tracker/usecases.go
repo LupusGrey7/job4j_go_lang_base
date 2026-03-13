@@ -57,8 +57,10 @@ func (u GetUsecase) Done(
 	if err != nil {
 		return fmt.Errorf("failed to get items: %w", err)
 	}
+
 	for _, item := range items {
-		out.Out(item.ID + " " + item.Name)
+		stringIdWithName := fmt.Sprintf("%s %s", item.ID, item.Name)
+		out.Out(stringIdWithName)
 	}
 	return nil
 }
