@@ -23,30 +23,30 @@ func NewTracker() *Tracker {
 	return &Tracker{}
 }
 
-func (t *Tracker) UpdateItem(item Item) bool {
-	idx := t.indexOf(item.ID)
-	if idx == -1 {
-		return false
+func (t *Tracker) UpdateItem(item Item) error {
+	index, ok := t.indexOf(item.ID)
+	if !ok {
+		return ErrNotFound
 	}
 
-	t.items[idx] = item
-	return true
+	t.items[index] = item
+	return nil
 }
 
-func (t *Tracker) indexOf(id string) int {
+func (t *Tracker) indexOf(id string) (int, bool) {
 	for i, item := range t.items {
 		if item.ID == id {
-			return i
+			return i, true
 		}
 	}
-	return -1
+	return -1, false
 }
 
 func (t *Tracker) AddItem(item Item) (Item, error) {
 	var itemResult Item
 
-	idx := t.indexOf(item.ID)
-	if idx != -1 {
+	_, ok := t.indexOf(item.ID)
+	if ok {
 		return Item{}, ErrIllegalArgument
 	}
 
@@ -90,13 +90,13 @@ func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
 
 func (t *Tracker) DeleteItem(id string) error {
 
-	idx := t.indexOf(id)
-	if idx == -1 {
+	i, ok := t.indexOf(id)
+	if !ok {
 		return ErrIllegalArgument
 	}
 
-	t.items[idx] = Item{}
-	t.items = append(t.items[:idx], t.items[idx+1:]...) // Удалить, но сохранить порядок
+	t.items[i] = Item{}
+	t.items = append(t.items[:i], t.items[i+1:]...) // Удалить, но сохранить порядок
 
 	return nil
 }
@@ -113,7 +113,7 @@ func (t *Tracker) compareByPrefix(name string, item Item) (Item, bool) {
 	// Конвертируем строку в слайс рун (символов)
 	runesItemName := []rune(item.Name)
 
-	for _, r := range name { // ПРЯМО по string!
+	for _, r := range name {
 		fmt.Println(string(r)) // Выводит каждый символ отдельно
 
 		if len(runesItemName) == 0 || unicode.IsSpace(r) {
