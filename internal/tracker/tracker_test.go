@@ -3,27 +3,12 @@ package tracker
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 )
 
 func Test_Tracker(t *testing.T) {
 	t.Parallel()
-
-	t.Run("When_check_link_leak", func(t *testing.T) {
-		t.Parallel()
-
-		tracker := NewTracker()
-		item := Item{
-			ID:   "",
-			Name: "First Item",
-		}
-		itemRsl, err := tracker.AddItem(item)
-
-		sliceItems := tracker.GetItems()
-
-		assert.Equal(t, err, nil)
-		assert.Equal(t, []Item{itemRsl}, sliceItems)
-	})
 
 	t.Run("When_add_item`s_Then_success", func(t *testing.T) {
 		t.Parallel()
@@ -41,14 +26,16 @@ func Test_Tracker(t *testing.T) {
 		itemOneRsl, errOne := tracker.AddItem(itemOne)
 		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
 
+		expected := []Item{itemOneRsl, itemTwoRsl}
 		sliceItems := tracker.GetItems()
 
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, errTwo, nil)
 		assert.Equal(t, 2, len(sliceItems))
+		assert.Equal(t, len(expected), len(sliceItems))
 		assert.Equal(t, sliceItems[1].Name, "Second Item")
-		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
-		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		assert.Equal(t, expected, sliceItems)
+		assert.Equal(t, true, reflect.DeepEqual(expected, sliceItems))
 	})
 
 	t.Run("When_try_add_exist_Item_Then_should_return_errIllegalArgument", func(t *testing.T) {
@@ -73,11 +60,14 @@ func Test_Tracker(t *testing.T) {
 		}
 		_, errThree := tracker.AddItem(itemThree)
 
+		expected := []Item{itemOneRsl, itemTwoRsl}
+		sliceItems := tracker.GetItems()
+
 		assert.Equal(t, errTwo, nil)
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, 2, len(tracker.GetItems()))
-		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
-		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		assert.Equal(t, expected, sliceItems)
+		assert.Equal(t, true, reflect.DeepEqual(expected, sliceItems))
 		assert.Equal(t, errThree, ErrIllegalArgument)
 	})
 
