@@ -43,18 +43,18 @@ func (t *Tracker) indexOf(id string) (int, bool) {
 }
 
 func (t *Tracker) AddItem(item Item) (Item, error) {
-	var itemResult Item
+	var res Item
 
 	_, ok := t.indexOf(item.ID)
 	if ok {
-		return Item{}, ErrIllegalArgument
+		return Item{}, ErrAlreadyExists
 	}
 
 	item.ID = uuid.New().String()
 	t.items = append(t.items, item)
-	itemResult = item
+	res = item
 
-	return itemResult, nil
+	return res, nil
 }
 
 // GetItems - important! return COPY(not origin) []Items using func copy(dest, resource)

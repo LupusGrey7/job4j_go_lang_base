@@ -68,7 +68,7 @@ func Test_Tracker(t *testing.T) {
 		assert.Equal(t, 2, len(tracker.GetItems()))
 		assert.Equal(t, expected, sliceItems)
 		assert.Equal(t, true, reflect.DeepEqual(expected, sliceItems))
-		assert.Equal(t, errThree, ErrIllegalArgument)
+		assert.Equal(t, errThree, ErrAlreadyExists)
 	})
 
 	t.Run("When_add_Item_and_use_toString_Then_equals", func(t *testing.T) {
@@ -187,13 +187,18 @@ func Test_Tracker(t *testing.T) {
 		}
 
 		err := tracker.UpdateItem(itemUpdate)
+
+		expected := []Item{itemOneRsl, itemUpdate}
 		sliceItems := tracker.GetItems()
 
+		assert.Equal(t, err, nil)
 		assert.Equal(t, nil, errAddOne)
 		assert.Equal(t, nil, errAddTwo)
-		assert.Equal(t, err, nil)
-		assert.Equal(t, item.Name, itemOneRsl.Name)
+		assert.Equal(t, len(expected), len(sliceItems))
+		assert.Equal(t, expected, sliceItems)
+		assert.Equal(t, true, reflect.DeepEqual(expected, sliceItems))
 		assert.Equal(t, sliceItems[1].Name, "Donald Trump")
+
 	})
 
 	t.Run("When_delete_by_id_Then_success", func(t *testing.T) {

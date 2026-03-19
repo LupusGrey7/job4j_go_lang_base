@@ -9,3 +9,5 @@ var ErrNotFound = errors.New("not found")
 var ErrNotSupported = errors.New("not supported")
 
 var ErrIllegalArgument = errors.New("illegal argument")
+
+var ErrAlreadyExists = errors.New("already exists")
