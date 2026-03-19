@@ -12,12 +12,12 @@ type DeleteItemRequest struct {
 func (s *Server) DeleteItem(c *fiber.Ctx) error {
 
 	//парсим url запроса на предмет параметров ("id"/ "name") сразу в переменную
-	requestParam := c.Query("id")
-	if requestParam == "" {
+	id := c.Query("id")
+	if id == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "id is required")
 	}
 
-	err := s.Repository.Delete(c.Context(), requestParam)
+	err := s.Repository.Delete(c.Context(), id)
 	if err != nil {
 		log.Errorw("s.Repository.DeleteByID: ", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "internal server error")

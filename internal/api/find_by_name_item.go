@@ -11,12 +11,12 @@ type FindByNameItemsResponse struct {
 
 func (s *Server) FindByNameItem(c *fiber.Ctx) error {
 	//парсим url запроса на предмет параметров ("id"/ "name") сразу в переменную
-	requestParam := c.Query("name")
-	if requestParam == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "id is required")
+	name := c.Query("name")
+	if name == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "name is required")
 	}
 
-	items, err := s.Repository.FindByName(c.Context(), requestParam)
+	items, err := s.Repository.FindByName(c.Context(), name)
 	if err != nil {
 		log.Errorw("s.Repository.FindByName", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "internal server error")
