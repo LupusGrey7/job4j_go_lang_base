@@ -13,7 +13,8 @@ func (s *Server) FindByNameItem(c *fiber.Ctx) error {
 	//парсим url запроса на предмет параметров ("id"/ "name") сразу в переменную
 	name := c.Query("name")
 	if name == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "name is required")
+		log.Errorw("err param name for FindByName", ErrIllegalArgument)
+		return fiber.NewError(fiber.StatusBadRequest, ErrIllegalArgument.Error())
 	}
 
 	items, err := s.Repository.FindByName(c.Context(), name)

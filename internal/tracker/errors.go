@@ -8,7 +8,7 @@ var ErrNotFound = errors.New("not found")
 
 var ErrNotSupported = errors.New("not supported")
 
-var ErrIllegalArgument = errors.New("illegal argument")
+var ErrIllegalArgument = errors.New("illegal argument provided")
 
 var ErrItemNotFound = errors.New("item not found")
 
