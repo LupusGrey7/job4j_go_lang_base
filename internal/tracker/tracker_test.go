@@ -218,13 +218,14 @@ func Test_Tracker(t *testing.T) {
 
 		err := tracker.DeleteItem(itemTwoRsl.ID)
 
+		expected := []Item{itemOneRsl}
 		sliceItems := tracker.GetItems()
 
 		assert.Equal(t, err, nil)
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, errTwo, nil)
 		assert.Equal(t, 1, len(sliceItems))
+		assert.Equal(t, true, reflect.DeepEqual(expected, sliceItems))
 		assert.Equal(t, "Alice Marcuse", sliceItems[0].Name)
-		assert.Equal(t, itemOneRsl.ID, sliceItems[0].ID)
 	})
 }

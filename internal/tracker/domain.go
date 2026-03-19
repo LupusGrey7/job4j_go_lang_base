@@ -89,10 +89,9 @@ func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
 }
 
 func (t *Tracker) DeleteItem(id string) error {
-
 	i, ok := t.indexOf(id)
 	if !ok {
-		return ErrIllegalArgument
+		return ErrItemNotFound
 	}
 
 	t.items[i] = Item{}
@@ -114,13 +113,12 @@ func (t *Tracker) compareByPrefix(name string, item Item) (Item, bool) {
 	runesItemName := []rune(item.Name)
 
 	for _, r := range name {
-		fmt.Println(string(r)) // Выводит каждый символ отдельно
 
 		if len(runesItemName) == 0 || unicode.IsSpace(r) {
 			return Item{}, false
 		}
 
-		if string(r) == string(runesItemName[index]) {
+		if string(r) == string(runesItemName[index]) { // каждый символ отдельно
 			coutPrefix++
 			index++
 			matchCounter++

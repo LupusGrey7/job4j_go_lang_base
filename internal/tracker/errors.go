@@ -10,4 +10,6 @@ var ErrNotSupported = errors.New("not supported")
 
 var ErrIllegalArgument = errors.New("illegal argument")
 
+var ErrItemNotFound = errors.New("item not found")
+
 var ErrAlreadyExists = errors.New("already exists")
