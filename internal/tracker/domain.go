@@ -3,7 +3,7 @@ package tracker
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"unicode"
+	"strings"
 )
 
 type Item struct {
@@ -68,24 +68,23 @@ func (t *Tracker) GetItems() []Item {
 // FindByPrefixName - поиск заявки по частичному совпадению имени.
 func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
 	ok := false
-	itemRsl := Item{}
+	itm := Item{}
 
 	for _, item := range t.GetItems() {
-
 		if item.Name == name {
 			ok = true
-			itemRsl = item
+			itm = item
 			break
 		} else {
-			itemRsl, ok = t.compareByPrefix(name, item)
-
+			ok = strings.HasPrefix(item.Name, name)
 			if ok {
-				return itemRsl, ok
+				itm = item
+				break
 			}
 		}
 	}
 
-	return itemRsl, ok
+	return itm, ok
 }
 
 func (t *Tracker) DeleteItem(id string) error {
@@ -98,38 +97,4 @@ func (t *Tracker) DeleteItem(id string) error {
 	t.items = append(t.items[:i], t.items[i+1:]...) // Удалить, но сохранить порядок
 
 	return nil
-}
-
-/*
-compareByPrefix - private func, сравнение имени по префику(первые символы в имени)
-*/
-func (t *Tracker) compareByPrefix(name string, item Item) (Item, bool) {
-	ok := false
-	index := 0
-	coutPrefix := 0
-	matchCounter := 0
-
-	// Конвертируем строку в слайс рун (символов)
-	runesItemName := []rune(item.Name)
-
-	for _, r := range name {
-
-		if len(runesItemName) == 0 || unicode.IsSpace(r) {
-			return Item{}, false
-		}
-
-		if string(r) == string(runesItemName[index]) { // каждый символ отдельно
-			coutPrefix++
-			index++
-			matchCounter++
-		} else {
-			coutPrefix++
-			index++
-		}
-		if coutPrefix == 3 && matchCounter == 3 {
-			ok = true
-			break
-		}
-	}
-	return item, ok
 }
