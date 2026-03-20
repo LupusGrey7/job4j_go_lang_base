@@ -2,36 +2,20 @@ package base
 
 // Mono - where nums[] for example [1,_2,_3]
 func Mono(nums []int) bool {
-	count := 1
-	size := len(nums)
-
-	if nums[0] == nums[1] && size == 2 { // базовый случай
+	// пустой или из одного элемента всегда монотонный
+	if len(nums) <= 1 { // базовый случай
 		return true
 	}
 
-	if nums[0] > nums[1] {
-		for i := 0; i < len(nums)-1; i++ {
-			if len(nums) > i+1 {
-				if nums[i] >= nums[i+1] {
-					count++
-				}
-			}
-			if count == size {
-				return true
-			}
-		}
-		return false
-	}
+	up, down := true, true
 
 	for i := 0; i < len(nums)-1; i++ {
-		if len(nums) > i+1 {
-			if nums[i] <= nums[i+1] {
-				count++
-			}
+		if nums[i] > nums[i+1] {
+			up = false // нарушение возрастания
 		}
-		if count == size {
-			return true
+		if nums[i] < nums[i+1] {
+			down = false // нарушение убывания
 		}
 	}
-	return false
+	return up || down
 }
