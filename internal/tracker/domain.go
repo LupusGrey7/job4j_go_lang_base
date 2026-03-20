@@ -70,15 +70,10 @@ func (t *Tracker) FindByPrefixName(name string) []Item {
 	var items []Item
 
 	for _, item := range t.GetItems() {
-		if item.Name == name {
+
+		ok := strings.HasPrefix(item.Name, name)
+		if ok {
 			items = append(items, Item{item.ID, item.Name})
-			break
-		} else {
-			ok := strings.HasPrefix(item.Name, name)
-			if ok {
-				items = append(items, Item{item.ID, item.Name})
-				break
-			}
 		}
 	}
 
