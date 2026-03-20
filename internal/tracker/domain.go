@@ -65,26 +65,24 @@ func (t *Tracker) GetItems() []Item {
 	return res
 }
 
-// FindByPrefixName - поиск заявки по частичному совпадению имени.
-func (t *Tracker) FindByPrefixName(name string) (Item, bool) {
-	ok := false
-	itm := Item{}
+// FindByPrefixName - поиск заявки по частичному или полному совпадению имени.
+func (t *Tracker) FindByPrefixName(name string) []Item {
+	var items []Item
 
 	for _, item := range t.GetItems() {
 		if item.Name == name {
-			ok = true
-			itm = item
+			items = append(items, Item{item.ID, item.Name})
 			break
 		} else {
-			ok = strings.HasPrefix(item.Name, name)
+			ok := strings.HasPrefix(item.Name, name)
 			if ok {
-				itm = item
+				items = append(items, Item{item.ID, item.Name})
 				break
 			}
 		}
 	}
 
-	return itm, ok
+	return items
 }
 
 func (t *Tracker) DeleteItem(id string) error {

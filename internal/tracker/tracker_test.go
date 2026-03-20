@@ -89,6 +89,29 @@ func Test_Tracker(t *testing.T) {
 		assert.Equal(t, exp, rsl)
 	})
 
+	t.Run("When_name_matches_Then_return_true", func(t *testing.T) {
+		t.Parallel()
+
+		tracker := NewTracker()
+		itemOne := Item{
+			ID:   uuid.NewString(),
+			Name: "First Item",
+		}
+		itemTwo := Item{
+			ID:   uuid.NewString(),
+			Name: "Boris Johnson",
+		}
+		_, errOne := tracker.AddItem(itemOne)
+		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
+
+		items := tracker.FindByPrefixName("Boris Johnson")
+
+		assert.Equal(t, errOne, nil)
+		assert.Equal(t, errTwo, nil)
+		assert.Equal(t, 1, len(items))
+		assert.Equal(t, items[0].Name, itemTwoRsl.Name)
+	})
+
 	t.Run("When_name_prefix_matches_Then_return_true", func(t *testing.T) {
 		t.Parallel()
 
@@ -101,15 +124,15 @@ func Test_Tracker(t *testing.T) {
 			ID:   uuid.NewString(),
 			Name: "Boris Johnson",
 		}
-		itemOneRsl, errOne := tracker.AddItem(itemOne)
+		_, errOne := tracker.AddItem(itemOne)
 		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
-		_, ok := tracker.FindByPrefixName("Boris Johnson")
 
-		assert.Equal(t, ok, true)
-		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
-		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
+		items := tracker.FindByPrefixName("Bo")
+
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, errTwo, nil)
+		assert.Equal(t, 1, len(items))
+		assert.Equal(t, items[0].Name, itemTwoRsl.Name)
 	})
 
 	t.Run("When_name_prefix_misses_Then_returns_false", func(t *testing.T) {
@@ -126,15 +149,14 @@ func Test_Tracker(t *testing.T) {
 		}
 		itemOneRsl, errOne := tracker.AddItem(itemOne)
 		itemTwoRsl, errTwo := tracker.AddItem(itemTwo)
-		_, ok := tracker.FindByPrefixName("Bo Johnson")
 
-		assert.Equal(t, ok, false)
+		items := tracker.FindByPrefixName("Jo")
+
 		assert.Equal(t, errOne, nil)
 		assert.Equal(t, errTwo, nil)
-
+		assert.Equal(t, 0, len(items))
 		assert.Equal(t, itemOne.Name, itemOneRsl.Name)
 		assert.Equal(t, itemTwo.Name, itemTwoRsl.Name)
-
 	})
 
 	t.Run("When_try_to_update_non-existent_item_Then_get_errNotFound", func(t *testing.T) {
